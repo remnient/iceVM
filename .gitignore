@@ -1,0 +1,12 @@
+/build/
+__pycache__/
+*.vo
+*.vok
+*.vos
+*.glob
+.*.aux
+*.cm[iox]
+*.cmxa
+*.o
+.lia.cache
+.nia.cache
