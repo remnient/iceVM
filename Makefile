@@ -11,3 +11,9 @@ build/loosevm: src/vm.c src/vm.h src/main.c Makefile
 	$(CC) $(CPPFLAGS) $(DEBUGFLAGS) $(CFLAGS) src/vm.c src/main.c -o $@
 clean:
 	rm -rf build
+
+check: all build/c-interface
+	build/c-interface
+
+build/c-interface: src/vm.c src/vm.h tests/c_interface.c Makefile
+	$(CC) $(CPPFLAGS) $(DEBUGFLAGS) $(CFLAGS) src/vm.c tests/c_interface.c -o $@
