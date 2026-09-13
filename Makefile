@@ -6,7 +6,7 @@ DEBUGFLAGS = -fdebug-prefix-map=$(CURDIR)=$(SOURCE_PATH)
 OPAM_BIN = $(shell opam var bin 2>/dev/null)
 ROCQ ?= $(shell if test -x '$(OPAM_BIN)/rocq'; then echo '$(OPAM_BIN)/rocq'; else command -v rocq; fi)
 OCAMLFIND ?= $(shell if test -x '$(OPAM_BIN)/ocamlfind'; then echo '$(OPAM_BIN)/ocamlfind'; else command -v ocamlfind; fi)
-ROCQLIBS = Syntax State Semantics Interpreter Verifier
+ROCQLIBS = Syntax State Semantics Interpreter Verifier Source Compiler Encoding Frontend Simulation
 
 .PHONY: all check clean
 all: build/loosevm
