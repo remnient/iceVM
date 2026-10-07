@@ -6,7 +6,7 @@ DEBUGFLAGS = -fdebug-prefix-map=$(CURDIR)=$(SOURCE_PATH)
 OPAM_BIN = $(shell opam var bin 2>/dev/null)
 ROCQ ?= $(shell if test -x '$(OPAM_BIN)/rocq'; then echo '$(OPAM_BIN)/rocq'; else command -v rocq; fi)
 OCAMLFIND ?= $(shell if test -x '$(OPAM_BIN)/ocamlfind'; then echo '$(OPAM_BIN)/ocamlfind'; else command -v ocamlfind; fi)
-ROCQLIBS = Syntax State Semantics Interpreter Verifier Source Compiler Encoding Frontend Simulation Optimisation TotalSimulation Extraction
+ROCQLIBS = Syntax State Semantics Interpreter Verifier Source Compiler Encoding Frontend Simulation Optimisation TotalSimulation Forward Extraction
 
 .PHONY: all proofs check clean sanitize
 all: build/loosevm
@@ -15,7 +15,8 @@ build/loosevm: src/vm.c src/vm.h src/main.c Makefile
 	$(CC) $(CPPFLAGS) $(DEBUGFLAGS) $(CFLAGS) src/vm.c src/main.c -o $@
 proofs: | build
 	@set -e; for f in $(ROCQLIBS); do $(ROCQ) compile -Q rocq Loosevm rocq/$$f.v; done
-	@sed -i 's|$(CURDIR)|$(SOURCE_PATH)|g' rocq/.*.aux
+	$(ROCQ) compile -Q rocq Loosevm -Q tests LoosevmTests tests/Proofs.v
+	@sed -i 's|$(CURDIR)|$(SOURCE_PATH)|g' rocq/.*.aux tests/.*.aux
 check: all build/model build/c-interface
 	build/c-interface
 	python3 tests/test.py
