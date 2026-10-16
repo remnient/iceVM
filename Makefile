@@ -35,6 +35,21 @@ clean:
 build:
 	mkdir -p build
 
+MENHIR ?= $(shell command -v menhir)
+PROOF_CACHE ?= $(HOME)/.cache
+COMPCERT ?= $(PROOF_CACHE)/loosevm-compcert-3.18
+VST ?= $(PROOF_CACHE)/loosevm-vst-2.17
+CROCQFLAGS = -Q rocq Loosevm -Q build/cproof LoosevmC $(foreach d,lib common x86_64 x86 cfrontend export,-R $(COMPCERT)/$(d) compcert.$(d)) -R $(COMPCERT)/flocq Flocq $(foreach d,msl sepcomp veric zlist floyd,-Q $(VST)/$(d) VST.$(d))
+.PHONY: proof-deps cproofs
+proof-deps:
+	PATH="$(OPAM_BIN):$$PATH" python3 tools/proof_deps.py --cache $(PROOF_CACHE) --rocq $(ROCQ) --menhir $(MENHIR)
+build/cproof/CProgram.v: src/vm.c src/vm.h
+	mkdir -p build/cproof
+	$(COMPCERT)/clightgen -normalize -short-idents -stdlib $(COMPCERT)/runtime -o $@ src/vm.c
+cproofs: proofs build/cproof/CProgram.v
+	$(ROCQ) compile $(CROCQFLAGS) build/cproof/CProgram.v
+	@set -e; for f in CIntegers CRepresentation CState CSpecification CProof CDecoder; do $(ROCQ) compile $(CROCQFLAGS) rocq/$$f.v; done
+	@sed -i 's|$(CURDIR)|$(SOURCE_PATH)|g' build/cproof/.*.aux rocq/.*.aux
 
 build/c-interface build/c-interface-sanitize: src/vm.c src/vm.h tests/c_interface.c Makefile
 	$(CC) $(CPPFLAGS) $(DEBUGFLAGS) $(CFLAGS) src/vm.c tests/c_interface.c -o $@
