@@ -1,5 +1,5 @@
 From Stdlib Require Import List NArith Arith Bool Lia.
-From Loosevm Require Import Syntax State Semantics Interpreter Verifier Compiler Simulation.
+From IceVM Require Import Syntax State Semantics Interpreter Verifier Compiler Simulation.
 Import ListNotations.
 Definition equivalent_state s t :=
   pc s = pc t /\ mode s = mode t /\

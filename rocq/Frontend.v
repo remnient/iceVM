@@ -1,5 +1,5 @@
 From Stdlib Require Import List Arith NArith Bool Lia.
-From Loosevm Require Import Syntax Source Compiler Encoding.
+From IceVM Require Import Syntax Source Compiler Encoding.
 Import ListNotations.
 Definition name := list nat.
 Definition name_eqb (a b : name) := if list_eq_dec Nat.eq_dec a b then true else false.

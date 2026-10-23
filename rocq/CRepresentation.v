@@ -1,14 +1,14 @@
 From VST.floyd Require Import proofauto.
 From Stdlib Require Import NArith.
-From LoosevmC Require Import CProgram.
-From Loosevm Require Import Syntax State Semantics CIntegers Encoding.
+From IceVMC Require Import CProgram.
+From IceVM Require Import Syntax State Semantics CIntegers Encoding.
 Import ListNotations.
 #[export] Instance CompSpecs : compspecs. make_compspecs prog. Defined.
 Definition Vprog : varspecs. mk_varspecs prog. Defined.
 Definition register_values (r : registers) := map (fun n => Vlong (cword (r n))) (seq 0 16).
 Definition memory_values (m : memory) :=
   map (fun n => Vint (Int.repr (Z.of_N (m n)))) (seq 0 memory_size).
-Definition frame_value (f : frame) : reptype (Tstruct _lvm_frame noattr) :=
+Definition frame_value (f : frame) : reptype (Tstruct _icevm_frame noattr) :=
   (Vlong (Int64.repr (Z.of_nat (return_pc f))), register_values (saved f)).
 Definition status_value (mode : status) : Z := match mode with Running => 0 | Stopped => 1 | Fault _ => 2 end.
 Definition fault_number (f : fault) : Z := match f with
@@ -16,22 +16,22 @@ Definition fault_number (f : fault) : Z := match f with
 Definition state_fault (mode : status) : Z := match mode with Fault f => fault_number f | _ => 0 end.
 Local Open Scope logic.
 Definition state_fields p s inactive : mpred :=
-  field_at Tsh (Tstruct _lvm noattr) [StructField _pc]
+  field_at Tsh (Tstruct _icevm noattr) [StructField _pc]
     (Vlong (Int64.repr (Z.of_nat (pc s)))) p *
-  field_at Tsh (Tstruct _lvm noattr) [StructField _regs] (register_values (regs s)) p *
-  field_at Tsh (Tstruct _lvm noattr) [StructField _memory] (memory_values (mem s)) p *
-  field_at Tsh (Tstruct _lvm noattr) [StructField _frontier]
+  field_at Tsh (Tstruct _icevm noattr) [StructField _regs] (register_values (regs s)) p *
+  field_at Tsh (Tstruct _icevm noattr) [StructField _memory] (memory_values (mem s)) p *
+  field_at Tsh (Tstruct _icevm noattr) [StructField _frontier]
     (Vlong (Int64.repr (Z.of_nat (frontier s)))) p *
-  field_at Tsh (Tstruct _lvm noattr) [StructField _depth]
+  field_at Tsh (Tstruct _icevm noattr) [StructField _depth]
     (Vlong (Int64.repr (Z.of_nat (length (frames s))))) p *
-  field_at Tsh (Tstruct _lvm noattr) [StructField _stack]
+  field_at Tsh (Tstruct _icevm noattr) [StructField _stack]
     (map frame_value (rev (frames s)) ++ inactive) p *
-  field_at Tsh (Tstruct _lvm noattr) [StructField _status]
+  field_at Tsh (Tstruct _icevm noattr) [StructField _status]
     (Vint (Int.repr (status_value (mode s)))) p *
-  field_at Tsh (Tstruct _lvm noattr) [StructField _fault]
+  field_at Tsh (Tstruct _icevm noattr) [StructField _fault]
     (Vint (Int.repr (state_fault (mode s)))) p.
 Definition represents_state p s : mpred :=
-  EX inactive : list (reptype (Tstruct _lvm_frame noattr)),
+  EX inactive : list (reptype (Tstruct _icevm_frame noattr)),
     !! ((length inactive + length (frames s) = stack_size)%nat /\ well_formed s /\ canonical s /\
         Z.of_nat (pc s) <= Int64.max_unsigned /\
         Forall (fun f => Z.of_nat (return_pc f) <= Int64.max_unsigned) (frames s)) &&
@@ -75,11 +75,11 @@ Definition owner_value code p :=
   Vlong (Int64.repr (Z.of_nat (if boundary code p then owner code p else 0%nat))).
 Definition owner_values code := map (owner_value code) (seq 0 (length code)).
 Definition code_fields sh c bytes flags owners code : mpred :=
-  field_at sh (Tstruct _lvm_code noattr) [StructField _bytes] bytes c *
-  field_at sh (Tstruct _lvm_code noattr) [StructField _size]
+  field_at sh (Tstruct _icevm_code noattr) [StructField _bytes] bytes c *
+  field_at sh (Tstruct _icevm_code noattr) [StructField _size]
     (Vlong (Int64.repr (Z.of_nat (length code)))) c *
-  field_at sh (Tstruct _lvm_code noattr) [StructField _boundary] flags c *
-  field_at sh (Tstruct _lvm_code noattr) [StructField _owner] owners c *
+  field_at sh (Tstruct _icevm_code noattr) [StructField _boundary] flags c *
+  field_at sh (Tstruct _icevm_code noattr) [StructField _owner] owners c *
   data_at sh (tarray tuchar (Z.of_nat (length code))) (code_values code) bytes *
   data_at sh (tarray tuchar (Z.of_nat (length code))) (boundary_values code) flags *
   data_at sh (tarray tulong (Z.of_nat (length code))) (owner_values code) owners.
@@ -167,7 +167,7 @@ Definition instruction_left i :=
 Definition instruction_right i := match i with Binary _ _ _ b => b | _ => 0%nat end.
 Definition instruction_immediate i :=
   match i with Imm _ n => n | Jump t | Branch _ t | Call t => N.of_nat t | _ => 0%N end.
-Definition instruction_value i : reptype (Tstruct _lvm_instruction noattr) :=
+Definition instruction_value i : reptype (Tstruct _icevm_instruction noattr) :=
   (Vint (Int.repr (Z.of_nat (instruction_opcode i))),
     (Vint (Int.repr (Z.of_nat (instruction_destination i))),
       (Vint (Int.repr (Z.of_nat (instruction_left i))),

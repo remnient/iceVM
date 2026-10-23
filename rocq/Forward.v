@@ -1,5 +1,5 @@
 From Stdlib Require Import List NArith Arith Bool Lia.
-From Loosevm Require Import Syntax State Semantics Interpreter Verifier Source Compiler Encoding Frontend Simulation TotalSimulation.
+From IceVM Require Import Syntax State Semantics Interpreter Verifier Source Compiler Encoding Frontend Simulation TotalSimulation.
 Import ListNotations.
 Local Opaque memory_size stack_size.
 

@@ -12,7 +12,7 @@ from asm import assemble
 from disasm import disassemble
 from isa import encode, verify
 
-VM = os.environ.get('LOOSEVM', str(ROOT / 'build/loosevm'))
+VM = os.environ.get('ICEVM', str(ROOT / 'build/iceVM'))
 MODEL = str(ROOT / 'build/model')
 COUNT = 0
 
@@ -23,7 +23,7 @@ def invoke(command):
 
 def check(data, fuel=200, expected=None, accepted=None, trace=False, fault=None):
     global COUNT
-    with tempfile.NamedTemporaryFile(suffix='.lvm') as f:
+    with tempfile.NamedTemporaryFile(suffix='.ivm') as f:
         f.write(data)
         f.flush()
         c = invoke([VM, f.name, str(fuel), '--raw'] + (['--trace'] if trace else []))
@@ -99,7 +99,7 @@ from opt import optimise
 
 def check_source(text, expected=None, fault=None):
     data = compile_bytes(text)
-    with tempfile.NamedTemporaryFile(suffix='.lvm') as target, tempfile.NamedTemporaryFile(mode='w', suffix='.sexp') as source:
+    with tempfile.NamedTemporaryFile(suffix='.ivm') as target, tempfile.NamedTemporaryFile(mode='w', suffix='.sexp') as source:
         target.write(data)
         target.flush()
         source.write(serialise_source(text))

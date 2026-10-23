@@ -1,6 +1,6 @@
 From Stdlib Require Import List NArith ZArith Lia.
 From compcert.lib Require Import Integers.
-From Loosevm Require Import Syntax State.
+From IceVM Require Import Syntax State.
 Import ListNotations.
 Definition cword (n : N) := Int64.repr (Z.of_N n).
 Lemma cword_word n : cword (word n) = cword n.

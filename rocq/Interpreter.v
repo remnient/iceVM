@@ -1,5 +1,5 @@
 From Stdlib Require Import List NArith.
-From Loosevm Require Import Syntax State Semantics.
+From IceVM Require Import Syntax State Semantics.
 Definition step code s : option state :=
   match mode s with
   | Running => Some (match decode code (pc s) with

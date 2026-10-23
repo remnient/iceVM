@@ -1,5 +1,5 @@
 From Stdlib Require Import List NArith Arith Bool Lia.
-From Loosevm Require Import Syntax.
+From IceVM Require Import Syntax.
 Import ListNotations.
 Definition memory_size := 65536.
 Definition stack_size := 256.

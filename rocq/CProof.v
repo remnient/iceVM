@@ -1,6 +1,6 @@
 From VST.floyd Require Import proofauto.
-From LoosevmC Require Import CProgram.
-From Loosevm Require Import CRepresentation CIntegers Semantics CSpecification.
+From IceVMC Require Import CProgram.
+From IceVM Require Import CRepresentation CIntegers Semantics CSpecification.
 Import ListNotations.
 Lemma body_trap : semax_body Vprog Gprog f_trap trap_spec.
 Proof. start_function. forward. forward. entailer!. Qed.
@@ -30,9 +30,9 @@ Lemma body_boundary : semax_body Vprog Gprog f_boundary boundary_spec.
 Proof.
   start_function. forward.
   forward_if (PROP () LOCAL (temp _t'1 (boundary_value code p))
-    SEP (field_at sh (Tstruct _lvm_code noattr) [StructField _size]
+    SEP (field_at sh (Tstruct _icevm_code noattr) [StructField _size]
            (Vlong (Int64.repr (Z.of_nat (length code)))) c;
-         field_at sh (Tstruct _lvm_code noattr) [StructField _boundary] flags c;
+         field_at sh (Tstruct _icevm_code noattr) [StructField _boundary] flags c;
          data_at sh (tarray tuchar (Z.of_nat (length code))) (boundary_values code) flags)).
   - assert (Position : (p < length code)%nat) by rep_lia.
     forward. forward.

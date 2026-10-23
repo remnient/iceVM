@@ -1,7 +1,7 @@
 From VST.floyd Require Import proofauto.
 From Stdlib Require Import NArith.
-From LoosevmC Require Import CProgram.
-From Loosevm Require Import Syntax State Semantics CIntegers CRepresentation.
+From IceVMC Require Import CProgram.
+From IceVM Require Import Syntax State Semantics CIntegers CRepresentation.
 Import ListNotations.
 Local Opaque memory_size stack_size.
 Lemma register_values_update r d v : (d < 16)%nat ->

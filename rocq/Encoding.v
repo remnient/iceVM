@@ -1,5 +1,5 @@
 From Stdlib Require Import List NArith Arith Bool Lia.
-From Loosevm Require Import Syntax Compiler.
+From IceVM Require Import Syntax Compiler.
 Import ListNotations.
 Fixpoint byte_power count : N := match count with 0 => 1 | S n => (256 * byte_power n)%N end.
 Fixpoint encode_immediate (count : nat) (n : N) : list nat :=

@@ -1,5 +1,5 @@
 From Stdlib Require Import List NArith String Ascii.
-From Loosevm Require Import Syntax State Interpreter Source Compiler Encoding Frontend Simulation Optimisation TotalSimulation Forward.
+From IceVM Require Import Syntax State Interpreter Source Compiler Encoding Frontend Simulation Optimisation TotalSimulation Forward.
 Import ListNotations.
 Definition normal_code : list nat := [2;4;9;42;0;0;0;0;0;0;0;5;0;9;0].
 Definition division_code : list nat := [2;4;9;1;0;0;0;0;0;0;0;4;10;0;0;0;0;0;0;0;0;19;9;9;10;5;0;9;0].

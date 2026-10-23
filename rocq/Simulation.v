@@ -1,5 +1,5 @@
 From Stdlib Require Import List NArith Arith Bool Lia.
-From Loosevm Require Import Syntax State Semantics Interpreter Verifier Source Compiler.
+From IceVM Require Import Syntax State Semantics Interpreter Verifier Source Compiler.
 Import ListNotations.
 Definition straight i :=
   match i with

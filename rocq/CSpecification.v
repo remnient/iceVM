@@ -1,18 +1,18 @@
 From VST.floyd Require Import proofauto.
-From LoosevmC Require Import CProgram.
-From Loosevm Require Import Syntax CRepresentation CIntegers Semantics.
+From IceVMC Require Import CProgram.
+From IceVM Require Import Syntax CRepresentation CIntegers Semantics.
 Import ListNotations.
 Definition trap_spec : ident * funspec :=
  DECLARE _trap
  WITH s : val, f : Z, old_status : Z, old_fault : Z
- PRE [ tptr (Tstruct _lvm noattr), tint ]
+ PRE [ tptr (Tstruct _icevm noattr), tint ]
    PROP (0 <= f <= 6)
    PARAMS (s; Vint (Int.repr f))
-   SEP (field_at Tsh (Tstruct _lvm noattr) [StructField _status] (Vint (Int.repr old_status)) s;
-        field_at Tsh (Tstruct _lvm noattr) [StructField _fault] (Vint (Int.repr old_fault)) s)
+   SEP (field_at Tsh (Tstruct _icevm noattr) [StructField _status] (Vint (Int.repr old_status)) s;
+        field_at Tsh (Tstruct _icevm noattr) [StructField _fault] (Vint (Int.repr old_fault)) s)
  POST [ tvoid ] PROP () RETURN ()
-   SEP (field_at Tsh (Tstruct _lvm noattr) [StructField _status] (Vint (Int.repr 2)) s;
-        field_at Tsh (Tstruct _lvm noattr) [StructField _fault] (Vint (Int.repr f)) s).
+   SEP (field_at Tsh (Tstruct _icevm noattr) [StructField _status] (Vint (Int.repr 2)) s;
+        field_at Tsh (Tstruct _icevm noattr) [StructField _fault] (Vint (Int.repr f)) s).
 Fixpoint byte_sum (contents : list Z) (count : nat) : Z :=
   match count with
   | O => 0
@@ -37,24 +37,24 @@ Definition read64_spec : ident * funspec :=
 Definition boundary_spec : ident * funspec :=
  DECLARE _boundary
  WITH sh : share, c : val, flags : val, code : list nat, p : nat
- PRE [ tptr (Tstruct _lvm_code noattr), tulong ]
+ PRE [ tptr (Tstruct _icevm_code noattr), tulong ]
    PROP (readable_share sh; Z.of_nat (length code) <= 4294967295;
          Z.of_nat p <= Int64.max_unsigned)
    PARAMS (c; Vlong (Int64.repr (Z.of_nat p)))
-   SEP (field_at sh (Tstruct _lvm_code noattr) [StructField _size]
+   SEP (field_at sh (Tstruct _icevm_code noattr) [StructField _size]
           (Vlong (Int64.repr (Z.of_nat (length code)))) c;
-        field_at sh (Tstruct _lvm_code noattr) [StructField _boundary] flags c;
+        field_at sh (Tstruct _icevm_code noattr) [StructField _boundary] flags c;
         data_at sh (tarray tuchar (Z.of_nat (length code))) (boundary_values code) flags)
  POST [ tint ] PROP () RETURN (boundary_value code p)
-   SEP (field_at sh (Tstruct _lvm_code noattr) [StructField _size]
+   SEP (field_at sh (Tstruct _icevm_code noattr) [StructField _size]
           (Vlong (Int64.repr (Z.of_nat (length code)))) c;
-        field_at sh (Tstruct _lvm_code noattr) [StructField _boundary] flags c;
+        field_at sh (Tstruct _icevm_code noattr) [StructField _boundary] flags c;
         data_at sh (tarray tuchar (Z.of_nat (length code))) (boundary_values code) flags).
 Definition local_boundaries code p t := (Semantics.boundary code p && Semantics.boundary code t)%bool.
 Definition local_spec : ident * funspec :=
  DECLARE _local
  WITH sh : share, c : val, bytes : val, flags : val, owners : val, code : list nat, p : nat, t : nat
- PRE [ tptr (Tstruct _lvm_code noattr), tulong, tulong ]
+ PRE [ tptr (Tstruct _icevm_code noattr), tulong, tulong ]
    PROP (Z.of_nat p <= Int64.max_unsigned; Z.of_nat t <= Int64.max_unsigned)
    PARAMS (c; Vlong (Int64.repr (Z.of_nat p)); Vlong (Int64.repr (Z.of_nat t)))
    SEP (represents_code sh c bytes flags owners code)
@@ -65,7 +65,7 @@ Definition call_entry code t := (call_boundary code t && Nat.eqb (nth t code 0%n
 Definition callable_spec : ident * funspec :=
  DECLARE _callable
  WITH sh : share, c : val, bytes : val, flags : val, owners : val, code : list nat, t : nat
- PRE [ tptr (Tstruct _lvm_code noattr), tulong ]
+ PRE [ tptr (Tstruct _icevm_code noattr), tulong ]
    PROP (Z.of_nat t <= Int64.max_unsigned)
    PARAMS (c; Vlong (Int64.repr (Z.of_nat t)))
    SEP (represents_code sh c bytes flags owners code)
@@ -80,24 +80,24 @@ Proof.
 Qed.
 Definition decode_result output result : mpred :=
   match result with
-  | Some i => data_at Tsh (Tstruct _lvm_instruction noattr) (instruction_value i) output
-  | None => data_at_ Tsh (Tstruct _lvm_instruction noattr) output end.
+  | Some i => data_at Tsh (Tstruct _icevm_instruction noattr) (instruction_value i) output
+  | None => data_at_ Tsh (Tstruct _icevm_instruction noattr) output end.
 Definition decoder_spec : ident * funspec :=
- DECLARE _lvm_decode
+ DECLARE _icevm_decode
  WITH sh : share, c : val, bytes : val, output : val, code : list nat, p : nat
- PRE [ tptr (Tstruct _lvm_code noattr), tulong, tptr (Tstruct _lvm_instruction noattr) ]
+ PRE [ tptr (Tstruct _icevm_code noattr), tulong, tptr (Tstruct _icevm_instruction noattr) ]
    PROP (readable_share sh; Forall (fun b => (b < 256)%nat) code;
          Z.of_nat (length code) <= 4294967295; Z.of_nat p <= Int64.max_unsigned)
    PARAMS (c; Vlong (Int64.repr (Z.of_nat p)); output)
-   SEP (field_at sh (Tstruct _lvm_code noattr) [StructField _size]
+   SEP (field_at sh (Tstruct _icevm_code noattr) [StructField _size]
           (Vlong (Int64.repr (Z.of_nat (length code)))) c;
-        field_at sh (Tstruct _lvm_code noattr) [StructField _bytes] bytes c;
+        field_at sh (Tstruct _icevm_code noattr) [StructField _bytes] bytes c;
         data_at sh (tarray tuchar (Z.of_nat (length code))) (code_values code) bytes;
-        data_at_ Tsh (Tstruct _lvm_instruction noattr) output)
+        data_at_ Tsh (Tstruct _icevm_instruction noattr) output)
  POST [ tint ] PROP () RETURN (Vint (Int.repr (match decode code p with Some _ => 1 | None => 0 end)))
-   SEP (field_at sh (Tstruct _lvm_code noattr) [StructField _size]
+   SEP (field_at sh (Tstruct _icevm_code noattr) [StructField _size]
           (Vlong (Int64.repr (Z.of_nat (length code)))) c;
-        field_at sh (Tstruct _lvm_code noattr) [StructField _bytes] bytes c;
+        field_at sh (Tstruct _icevm_code noattr) [StructField _bytes] bytes c;
         data_at sh (tarray tuchar (Z.of_nat (length code))) (code_values code) bytes;
         decode_result output (decode code p)).
 Definition Gprog : funspecs := ltac:(with_library prog

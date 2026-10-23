@@ -37,9 +37,9 @@ def main():
         parser.error('provide a Rocq executable and a positive job count')
     args.cache = args.cache.expanduser().resolve()
     rocq = str(Path(shutil.which(args.rocq) or args.rocq).resolve())
-    compcert = args.cache / 'loosevm-compcert-3.18'
-    vst = args.cache / 'loosevm-vst-2.17'
-    shims = args.cache / 'loosevm-proof-bin'
+    compcert = args.cache / 'iceVM-compcert-3.18'
+    vst = args.cache / 'iceVM-vst-2.17'
+    shims = args.cache / 'iceVM-proof-bin'
     checkout(compcert, 'https://github.com/AbsInt/CompCert.git', COMPCERT_REVISION)
     checkout(vst, 'https://github.com/PrincetonUniversity/VST.git', VST_REVISION)
     shims.mkdir(parents=True, exist_ok=True)
@@ -56,7 +56,7 @@ def main():
         script.chmod(0o755)
     env = os.environ.copy()
     env['PATH'] = os.pathsep.join((str(shims), str(Path(rocq).parent), env['PATH']))
-    run(['./configure', '-clightgen', '-prefix', str(args.cache / 'loosevm-proof-install'),
+    run(['./configure', '-clightgen', '-prefix', str(args.cache / 'iceVM-proof-install'),
          'x86_64-linux'], cwd=compcert, env=env)
     run(['make', 'depend'], cwd=compcert, env=env)
     run(['make', f'-j{args.jobs}', 'clightgen'], cwd=compcert, env=env)

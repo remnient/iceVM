@@ -1,5 +1,5 @@
 From Stdlib Require Import List NArith Arith Bool.
-From Loosevm Require Import Syntax State.
+From IceVM Require Import Syntax State.
 Import ListNotations.
 Inductive source_comparison := CSame | CDifferent | CBelow | CAtMost | CAbove | CAtLeast.
 Definition compare_values op (x y : N) : N :=

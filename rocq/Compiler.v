@@ -1,5 +1,5 @@
 From Stdlib Require Import List NArith Arith Bool Lia.
-From Loosevm Require Import Syntax State Semantics Interpreter Verifier Source.
+From IceVM Require Import Syntax State Semantics Interpreter Verifier Source.
 Import ListNotations.
 Fixpoint compile_expression (e : expression) (destination : nat) : option (list instr) :=
   match e with

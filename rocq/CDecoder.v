@@ -1,7 +1,7 @@
 From VST.floyd Require Import proofauto.
 From Stdlib Require Import NArith.
-From LoosevmC Require Import CProgram.
-From Loosevm Require Import Syntax State Semantics Encoding CIntegers CRepresentation CState CSpecification.
+From IceVMC Require Import CProgram.
+From IceVM Require Import Syntax State Semantics Encoding CIntegers CRepresentation CState CSpecification.
 Import ListNotations.
 Lemma skipn_head_cons {A} (d : A) xs p : (p < length xs)%nat ->
   skipn p xs = nth p xs d :: skipn (S p) xs.
@@ -202,8 +202,8 @@ Local Ltac decoder_cases :=
   | Equal : Z.of_nat (nth _ _ 0%nat) = _ |- _ => clear Equal
   end.
 Local Ltac decoder_forget output :=
-  match goal with |- context [data_at Tsh (Tstruct _lvm_instruction noattr) ?value output] =>
-    sep_apply (data_at_data_at_ Tsh (Tstruct _lvm_instruction noattr) value output)
+  match goal with |- context [data_at Tsh (Tstruct _icevm_instruction noattr) ?value output] =>
+    sep_apply (data_at_data_at_ Tsh (Tstruct _icevm_instruction noattr) value output)
   end.
 Local Ltac decoder_byte b i code p offset index :=
   let Array := fresh "Array" in let Address := fresh "Address" in
@@ -392,7 +392,7 @@ Proof.
     apply decode_insufficient; [exact NotPad |]. rewrite Tag, encoded_width_opcode. exact Guard.
 Qed.
 
-Lemma body_decoder : semax_body Vprog Gprog f_lvm_decode decoder_spec.
+Lemma body_decoder : semax_body Vprog Gprog f_icevm_decode decoder_spec.
 Proof.
   start_function. forward. forward_if.
   - assert (Outside : (length code <= p)%nat) by rep_lia.

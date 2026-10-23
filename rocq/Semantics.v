@@ -1,5 +1,5 @@
 From Stdlib Require Import List NArith Arith Bool Lia.
-From Loosevm Require Import Syntax State.
+From IceVM Require Import Syntax State.
 Import ListNotations.
 Fixpoint scan (fuel : nat) (code : list nat) (p : nat) : list nat :=
   match fuel with
